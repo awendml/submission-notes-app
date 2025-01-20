@@ -115,6 +115,7 @@ footer .wrapper {
 }
 
 /* styles.css */
+
 form {
   display: flex;
   flex-direction: column;
@@ -125,18 +126,45 @@ label {
   margin-bottom: 5px;
 }
 
-input, textarea {
+input,
+textarea {
   padding: 10px;
   margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
-button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
+.btn-one {
+
+
+  outline: 0;
+  grid-gap: 8px;
+  align-items: center;
+  background: #77b8fd;
+  border: 1px solid #000;
   border-radius: 4px;
   cursor: pointer;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-size: 16px;
+  gap: 8px;
+  justify-content: center;
+  line-height: 1.5;
+  overflow: hidden;
+  padding: 12px 16px;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  transition: all .14s ease-out;
+  white-space: nowrap;
+  font-size: 1rem;
+
+}
+
+.btn-one:hover {
+  box-shadow: 4px 4px 0 #000;
+  transform: translate(-4px, -4px);
+}
+
+.btn-one:focus-visible {
+  outline-offset: 1px;
 }
