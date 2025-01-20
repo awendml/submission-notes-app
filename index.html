@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alfabet</title>
+
+  <link rel="stylesheet" href="src/styles.css" />
+  <link rel="stylesheet" href="src/responsive.css" />
+</head>
+
+<body>
+  <header>
+    <div class="wrapper">
+      <a href="#" class="brand-name">Belajar Alfabet</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrapper">
+      <div class="container">
+        <section>
+          <form id="note-form">
+            <input type="text" id="note-title" placeholder="Judul Catatan">
+            <textarea id="note-body" placeholder="Isi Catatan"></textarea>
+            <button type="submit">Tambah Catatan</button>
+          </form>
+        </section>
+        <section>
+          <div id="note-list" class="note-list"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrapper">
+      <p class="foot-information">
+        Belajar Fundamental Front-End Web Development | Dicoding Indonesia
+      </p>
+    </div>
+  </footer>
+
+  <!-- <script src="src/data.js"></script> -->
+  <script type="module" src="src/index.js"></script>
+</body>
+
+</html>
