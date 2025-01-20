@@ -16,22 +16,13 @@ function formatDate(dateString) {
   return dateObject.toLocaleDateString('id-ID', options);
 }
 
-const noteListEl = document.querySelector('#note-list');
+// Ambil elemen note-list
+const noteListEl = document.querySelector('note-list');
 
-const templateNoteItem = (note) => `
-  <div class="note-item">
-    <h3>${note.title}</h3>
-    <p>${note.body}</p>
-    <p>Dibuat pada: ${formatDate(note.createdAt)}</p>
-  </div>
-`;
+// Inisialisasi custom element note-list dengan data awal
+noteListEl.notesData = notesData;
 
-noteListEl.innerHTML = '';
-
-notesData.forEach((note) => {
-  noteListEl.innerHTML += templateNoteItem(note);
-});
-
+// Form dan input
 const noteForm = document.getElementById('note-form');
 const titleInput = document.getElementById('note-title');
 const bodyInput = document.getElementById('note-body');
@@ -74,7 +65,6 @@ const validateField = (event) => {
   if (connectedValidationEl) {
     connectedValidationEl.textContent = isValid ? '' : errorMessage;
   }
-  
 };
 
 titleInput.addEventListener('change', customValidationTitleHandler);
@@ -88,11 +78,12 @@ bodyInput.addEventListener('blur', validateField);
 noteForm.addEventListener('submit', (event) => {
   event.preventDefault();
 
-  // Additional validation check before submitting
+  // Validasi form sebelum submit
   if (!titleInput.validity.valid || !bodyInput.validity.valid) {
     return;
   }
 
+  // Ambil data dari form
   const title = document.getElementById('note-title').value;
   const body = document.getElementById('note-body').value;
   const createdAt = new Date();
@@ -104,13 +95,10 @@ noteForm.addEventListener('submit', (event) => {
   };
   notesData.push(newNote);
 
-  // Render ulang daftar catatan
-  noteListEl.innerHTML = '';
-  notesData.forEach((note) => {
-    noteListEl.innerHTML += templateNoteItem(note);
-  });
+  // Perbarui data pada note-list
+  noteListEl.notesData = notesData;
 
-  // Kosongkan formulir
+  // Kosongkan form
   document.getElementById('note-title').value = '';
   document.getElementById('note-body').value = '';
 });
