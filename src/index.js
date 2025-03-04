@@ -1,104 +1,199 @@
-import notesData from './data.js';
 import './components/app-header.js';
 import './components/app-footer.js';
 import './components/note-list.js';
+import './components/archived-note-list.js';
+import './components/loading-indicator.js';
+import './styles.css';
 
-function formatDate(dateString) {
-  const dateObject = new Date(dateString);
+const API_BASE_URL = 'https://notes-api.dicoding.dev/v2';
+const loadingIndicator = document.querySelector("loading-indicator");
 
-  if (isNaN(dateObject.getTime())) {
-    console.error("Error: Invalid date string. Could not create Date object.");
-    return "Invalid Date";
-  }
+async function fetchNotes() {
+    if (loadingIndicator) loadingIndicator.show();
 
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    try {
+        const response = await fetch(`${API_BASE_URL}/notes`);
+        const result = await response.json();
 
-  return dateObject.toLocaleDateString('id-ID', options);
+        if (result.status === "success") {
+            const noteListEl = document.querySelector("note-list");
+
+            if (!noteListEl) {
+                console.error("Elemen 'note-list' tidak ditemukan!");
+                return;
+            }
+
+            noteListEl.notesData = result.data;
+        } else {
+            console.error("Gagal mengambil catatan:", result.message);
+        }
+    } catch (error) {
+        console.error("Error fetching notes:", error);
+    } finally {
+        if (loadingIndicator) loadingIndicator.hide();
+    }
 }
 
-// Ambil elemen note-list
-const noteListEl = document.querySelector('note-list');
+async function fetchArchivedNotes() {
+    if (loadingIndicator) loadingIndicator.show();
 
-// Inisialisasi custom element note-list dengan data awal
-noteListEl.notesData = notesData;
+    try {
+        const response = await fetch(`${API_BASE_URL}/notes/archived`);
+        const result = await response.json();
 
-// Form dan input
+        if (result.status === "success") {
+            const archivedListEl = document.querySelector("archived-note-list");
+
+            if (!archivedListEl) {
+                console.error("Elemen 'archived-note-list' tidak ditemukan!");
+                return;
+            }
+
+            archivedListEl.notesData = result.data;
+        } else {
+            console.error("Gagal mengambil catatan arsip:", result.message);
+        }
+    } catch (error) {
+        console.error("Error fetching archived notes:", error);
+    } finally {
+        if (loadingIndicator) loadingIndicator.hide();
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    fetchNotes();
+    fetchArchivedNotes();
+});
+
 const noteForm = document.getElementById('note-form');
 const titleInput = document.getElementById('note-title');
 const bodyInput = document.getElementById('note-body');
 
-noteForm.addEventListener('submit', (event) => event.preventDefault());
+noteForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
-const customValidationTitleHandler = (event) => {
-  event.target.setCustomValidity('');
+    if (!titleInput.validity.valid || !bodyInput.validity.valid) {
+        return;
+    }
 
-  if (event.target.validity.valueMissing) {
-    event.target.setCustomValidity('Wajib diisi.');
-  } else if (event.target.validity.tooShort) {
-    event.target.setCustomValidity('Minimal panjang adalah lima karakter.');
-  } else if (event.target.validity.patternMismatch) {
-    event.target.setCustomValidity(
-      'Tidak boleh diawali dengan simbol, mengandung white space atau spasi, dan mengandung karakter spesial seperti dolar ($).'
-    );
-  }
-};
+    const newNote = {
+        title: titleInput.value,
+        body: bodyInput.value,
+    };
 
-const customValidationBodyHandler = (event) => {
-  event.target.setCustomValidity('');
+    if (loadingIndicator) loadingIndicator.show();
 
-  if (event.target.validity.valueMissing) {
-    event.target.setCustomValidity('Wajib diisi.');
-  } else if (event.target.validity.tooShort) {
-    event.target.setCustomValidity('Minimal panjang adalah 10 karakter.');
-  }
-};
+    try {
+        const response = await fetch(`${API_BASE_URL}/notes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newNote),
+        });
 
-const validateField = (event) => {
-  const isValid = event.target.validity.valid;
-  const errorMessage = event.target.validationMessage;
+        const result = await response.json();
 
-  const connectedValidationId = event.target.getAttribute('aria-describedby');
-  const connectedValidationEl = connectedValidationId
-    ? document.getElementById(connectedValidationId)
-    : null;
+        if (result.status === 'success') {
+            fetchNotes();
+            titleInput.value = '';
+            bodyInput.value = '';
+        } else {
+            console.error('Gagal menambahkan catatan:', result.message);
+        }
+    } catch (error) {
+        console.error('Error adding note:', error);
+    } finally {
+        if (loadingIndicator) loadingIndicator.hide();
+    }
+});
 
-  if (connectedValidationEl) {
-    connectedValidationEl.textContent = isValid ? '' : errorMessage;
-  }
-};
+async function archiveNote(noteId) {
+    if (loadingIndicator) loadingIndicator.show();
 
-titleInput.addEventListener('change', customValidationTitleHandler);
-titleInput.addEventListener('invalid', customValidationTitleHandler);
-titleInput.addEventListener('blur', validateField);
+    try {
+        const response = await fetch(`${API_BASE_URL}/notes/${noteId}/archive`, {
+            method: "POST",
+        });
 
-bodyInput.addEventListener('change', customValidationBodyHandler);
-bodyInput.addEventListener('invalid', customValidationBodyHandler);
-bodyInput.addEventListener('blur', validateField);
+        const result = await response.json();
+        if (result.status === "success") {
+            fetchNotes();
+            fetchArchivedNotes();
+        } else {
+            console.error("Gagal mengarsipkan catatan:", result.message);
+        }
+    } catch (error) {
+        console.error("Error archiving note:", error);
+    } finally {
+        if (loadingIndicator) loadingIndicator.hide();
+    }
+}
 
-noteForm.addEventListener('submit', (event) => {
-  event.preventDefault();
+async function unarchiveNote(noteId) {
+    if (loadingIndicator) loadingIndicator.show();
 
-  // Validasi form sebelum submit
-  if (!titleInput.validity.valid || !bodyInput.validity.valid) {
-    return;
-  }
+    try {
+        const response = await fetch(`${API_BASE_URL}/notes/${noteId}/unarchive`, {
+            method: "POST",
+        });
 
-  // Ambil data dari form
-  const title = document.getElementById('note-title').value;
-  const body = document.getElementById('note-body').value;
-  const createdAt = new Date();
+        const result = await response.json();
+        if (result.status === "success") {
+            fetchNotes();
+            fetchArchivedNotes();
+        } else {
+            console.error("Gagal mengembalikan catatan:", result.message);
+        }
+    } catch (error) {
+        console.error("Error unarchiving note:", error);
+    } finally {
+        if (loadingIndicator) loadingIndicator.hide();
+    }
+}
 
-  const newNote = {
-    title,
-    body,
-    createdAt
-  };
-  notesData.push(newNote);
+async function deleteNote(noteId) {
+    if (loadingIndicator) loadingIndicator.show();
 
-  // Perbarui data pada note-list
-  noteListEl.notesData = notesData;
+    try {
+        const response = await fetch(`${API_BASE_URL}/notes/${noteId}`, {
+            method: "DELETE",
+        });
 
-  // Kosongkan form
-  document.getElementById('note-title').value = '';
-  document.getElementById('note-body').value = '';
+        const result = await response.json();
+        if (result.status === "success") {
+            fetchNotes();
+            fetchArchivedNotes();
+        } else {
+            console.error("Gagal menghapus catatan:", result.message);
+        }
+    } catch (error) {
+        console.error("Error deleting note:", error);
+    } finally {
+        if (loadingIndicator) loadingIndicator.hide();
+    }
+}
+
+document.addEventListener("archive-note", async (event) => {
+    const noteId = event.detail;
+    await archiveNote(noteId);
+});
+
+document.addEventListener("unarchive-note", async (event) => {
+    const noteId = event.detail;
+    await unarchiveNote(noteId);
+});
+document.addEventListener("restore-note", async (event) => {
+  const noteId = event.detail;
+
+  // Panggil API untuk mengembalikan catatan ke daftar aktif
+  await unarchiveNote(noteId);
+
+  // Refresh data setelah perubahan
+  fetchNotes();
+  fetchArchivedNotes();
+});
+
+
+document.addEventListener("delete-note", async (event) => {
+    const noteId = event.detail;
+    await deleteNote(noteId);
 });

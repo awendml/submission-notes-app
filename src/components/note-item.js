@@ -1,45 +1,64 @@
 class NoteItem extends HTMLElement {
-    static get observedAttributes() {
-        return ['title', 'body', 'createdat'];
-    }
+  constructor() {
+      super();
+      this.attachShadow({ mode: "open" });
+  }
 
-    constructor() {
-        super();
-        this.attachShadow({ mode: 'open' });
-    }
+  set note(note) {
+      this._note = note;
+      this.render();
+  }
 
-    attributeChangedCallback(name, oldValue, newValue) {
-        this.render();
-    }
+  handleDelete() {
+      const event = new CustomEvent("delete-note", {
+          detail: this._note.id,
+          bubbles: true,
+          composed: true,
+      });
+      this.dispatchEvent(event);
+  }
 
-    render() {
-        const title = this.getAttribute('title') || '';
-        const body = this.getAttribute('body') || '';
-        const createdAt = new Date(this.getAttribute('createdat') || Date.now());
-
-        this.shadowRoot.innerHTML = `
-        <style>
-          .note-item {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          }
-          .note-item h3 {
-            margin: 0 0 10px;
-          }
-          .note-item p {
-            margin: 5px 0;
-          }
-        </style>
-        <div class="note-item">
-          <h3>${title}</h3>
-          <p>${body}</p>
-          <p><small>Created at: ${createdAt.toLocaleDateString('id-ID')}</small></p>
-        </div>
+  render() {
+      this.shadowRoot.innerHTML = `
+          <style>
+              .note-item {
+                  border: 1px solid #ccc;
+                  padding: 10px;
+                  margin: 5px 0;
+                  border-radius: 5px;
+                  position: relative;
+              }
+              h3 {
+                  margin: 0;
+              }
+              p {
+                  margin: 5px 0;
+              }
+              small {
+                  color: gray;
+              }
+              .delete-btn {
+                  position: absolute;
+                  top: 5px;
+                  right: 5px;
+                  background: red;
+                  color: white;
+                  border: none;
+                  padding: 5px;
+                  cursor: pointer;
+                  border-radius: 3px;
+              }
+          </style>
+          <div class="note-item">
+              <h3>${this._note.title}</h3>
+              <p>${this._note.body}</p>
+              <small>${new Date(this._note.createdAt).toLocaleString()}</small>
+              <button class="delete-btn">Hapus</button>
+          </div>
       `;
-    }
+
+      this.shadowRoot.querySelector(".delete-btn").addEventListener("click", () => this.handleDelete());
+  }
 }
 
-customElements.define('note-item', NoteItem);
+customElements.define("note-item", NoteItem);

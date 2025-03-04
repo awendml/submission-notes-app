@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Note app</title>
 
-  <link rel="stylesheet" href="src/styles.css" />
-  <link rel="stylesheet" href="src/responsive.css" />
+  <!-- <link rel="stylesheet" href="src/styles.css" />
+  <link rel="stylesheet" href="src/responsive.css" /> -->
 </head>
 
 <body>
@@ -17,6 +17,8 @@
   <main>
     <div class="wrapper">
       <div class="container">
+        <loading-indicator></loading-indicator>
+
         <section>
           <form id="note-form">
             <input type="text" id="note-title" placeholder="Judul Catatan" required
@@ -30,13 +32,17 @@
           <section>
             <note-list></note-list>
           </section>
+          <section>
+            <h2>Catatan Arsip</h2>
+            <archived-note-list></archived-note-list>
+          </section>
       </div>
     </div>
   </main>
 
   <app-footer></app-footer>
 
-  <script type="module" src="src/index.js"></script>
+  <!-- <script type="module" src="src/index.js"></script> -->
 </body>
 
 </html>
