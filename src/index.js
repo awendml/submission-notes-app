@@ -119,9 +119,11 @@ async function archiveNote(noteId) {
             fetchNotes();
             fetchArchivedNotes();
         } else {
+            Swal.fire("Error", "Gagal mengarsipkan catatan: " + result.message, "error");
             console.error("Gagal mengarsipkan catatan:", result.message);
         }
     } catch (error) {
+        Swal.fire("Error", "Terjadi kesalahan saat mengarsipkan catatan!", "error");
         console.error("Error archiving note:", error);
     } finally {
         if (loadingIndicator) loadingIndicator.hide();
@@ -163,9 +165,11 @@ async function deleteNote(noteId) {
             fetchNotes();
             fetchArchivedNotes();
         } else {
+            Swal.fire("Error", "Gagal menghapus catatan: " + result.message, "error");
             console.error("Gagal menghapus catatan:", result.message);
         }
     } catch (error) {
+        Swal.fire("Error", "Terjadi kesalahan saat menghapus catatan!", "error");
         console.error("Error deleting note:", error);
     } finally {
         if (loadingIndicator) loadingIndicator.hide();
